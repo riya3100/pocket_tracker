@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "312848431265",
+    "project_id": "pocket-tracker-c1eab",
+    "storage_bucket": "pocket-tracker-c1eab.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:312848431265:android:e93152fa1aa89f3c5e58e0",
+        "android_client_info": {
+          "package_name": "com.example.pocket_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5p4jfmQKxD_c8DbNsB2AQG6KKIV6Y9TE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
