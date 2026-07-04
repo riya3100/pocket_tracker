@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import '../../services/auth_service.dart';
+import 'signup_screen.dart';
+import '../home/dashboard_screen.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -10,7 +12,43 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final AuthService authService = AuthService();
+  Future<void> login() async {
+  String email = emailController.text.trim();
+  String password = passwordController.text.trim();
 
+  if (email.isEmpty || password.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Please fill all fields"),
+      ),
+    );
+    return;
+  }
+
+  String? result = await authService.login(email, password);
+
+  if (result == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Login Successful"),
+      ),
+    );
+Navigator.pushReplacement(
+  context,
+  MaterialPageRoute(
+    builder: (context) => const DashboardScreen(),
+  ),
+);
+    // Dashboard navigation will be added later.
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(result),
+      ),
+    );
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +64,6 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 30),
 
-                // App Title
                 Row(
                   children: const [
                     Icon(Icons.account_balance_wallet,
@@ -98,9 +135,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   height: 55,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      login();
+                    },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Colors.green.shade600,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -115,9 +154,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 20),
 
                 Center(
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text("Create Account"),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Don't have an account? "),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SignupScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text("Sign up now"),
+                      ),
+                    ],
                   ),
                 ),
               ],
