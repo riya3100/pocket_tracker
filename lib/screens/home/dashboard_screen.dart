@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'add_transaction_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  double totalIncome = 0;
+  double totalExpense = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -13,127 +23,199 @@ class DashboardScreen extends StatelessWidget {
         elevation: 0,
         title: const Text(
           "Pocket Tracker",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
 
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: ListView(
-          children: [
-            const Text(
-              "Good Afternoon 👋",
-              style: TextStyle(color: Colors.grey, fontSize: 16),
-            ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection("transactions")
+            .orderBy("createdAt", descending: true)
+            .snapshots(),
 
-            const SizedBox(height: 5),
+        builder: (context, snapshot) {
 
-            const Text(
-              "Riya",
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            const SizedBox(height: 25),
+          final docs = snapshot.data!.docs;
 
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.green.shade600,
-                borderRadius: BorderRadius.circular(20),
+          // RESET VALUES
+          totalIncome = 0;
+          totalExpense = 0;
+
+          for (var doc in docs) {
+            double amount = (doc["amount"] as num).toDouble();
+
+            if (doc["type"] == "Income") {
+              totalIncome += amount;
+            } else {
+              totalExpense += amount;
+            }
+          }
+
+          double totalBalance = totalIncome - totalExpense;
+
+          return ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+
+              const Text(
+                "Good Afternoon 👋",
+                style: TextStyle(color: Colors.grey, fontSize: 16),
               ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+
+              const SizedBox(height: 5),
+
+              const Text(
+                "Riya",
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              ),
+
+              const SizedBox(height: 25),
+
+              // BALANCE CARD
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade600,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Total Balance",
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "₹${totalBalance.toStringAsFixed(2)}",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              // INCOME + EXPENSE
+              Row(
                 children: [
-                  Text(
-                    "Total Balance",
-                    style: TextStyle(color: Colors.white70),
+
+                  Expanded(
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(18),
+                        child: Column(
+                          children: [
+                            Icon(Icons.arrow_downward,
+                                color: Colors.green.shade600),
+                            const SizedBox(height: 8),
+                            const Text("Income"),
+                            Text("₹${totalIncome.toStringAsFixed(2)}"),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
 
-                  SizedBox(height: 10),
+                  const SizedBox(width: 15),
 
-                  Text(
-                    "₹0.00",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(18),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.arrow_upward, color: Colors.red),
+                            const SizedBox(height: 8),
+                            const Text("Expense"),
+                            Text("₹${totalExpense.toStringAsFixed(2)}"),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
 
-            const SizedBox(height: 25),
+              const SizedBox(height: 30),
 
-            Row(
-              children: [
-                Expanded(
-                  child: Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(18),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.arrow_downward,
-                            color: Colors.green.shade600,
-                          ),
-                          SizedBox(height: 8),
-                          Text("Income"),
-                          SizedBox(height: 5),
-                          Text("₹0"),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-                SizedBox(width: 15),
-
-                Expanded(
-                  child: Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(18),
-                      child: Column(
-                        children: [
-                          Icon(Icons.arrow_upward, color: Colors.red),
-                          SizedBox(height: 8),
-                          Text("Expense"),
-                          SizedBox(height: 5),
-                          Text("₹0"),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 30),
-
-            const Text(
-              "Recent Transactions",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 15),
-
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.only(top: 40),
-                child: Text(
-                  "No Transactions Yet",
-                  style: TextStyle(color: Colors.grey, fontSize: 18),
-                ),
+              const Text(
+                "Recent Transactions",
+                style: TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
-        ),
+
+              const SizedBox(height: 15),
+
+              // TRANSACTIONS LIST
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: docs.length,
+                itemBuilder: (context, index) {
+
+                  var transaction = docs[index];
+
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: transaction["type"] == "Income"
+                            ? Colors.green.shade100
+                            : Colors.red.shade100,
+                        child: Icon(
+                          transaction["type"] == "Income"
+                              ? Icons.arrow_downward
+                              : Icons.arrow_upward,
+                          color: transaction["type"] == "Income"
+                              ? Colors.green
+                              : Colors.red,
+                        ),
+                      ),
+
+                      title: Text(transaction["title"]),
+                      subtitle: Text(transaction["category"]),
+
+                      trailing: Text(
+                        "₹${transaction["amount"]}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: transaction["type"] == "Income"
+                              ? Colors.green
+                              : Colors.red,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        },
       ),
 
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.green.shade600,
-        onPressed: () {},
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.green,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AddTransactionScreen(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

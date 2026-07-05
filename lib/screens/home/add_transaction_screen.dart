@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../services/transaction_service.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
 
   @override
-  State<AddTransactionScreen> createState() =>
-      _AddTransactionScreenState();
+  State<AddTransactionScreen> createState() => _AddTransactionScreenState();
 }
 
-class _AddTransactionScreenState
-    extends State<AddTransactionScreen> {
+class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final titleController = TextEditingController();
   final amountController = TextEditingController();
-
+  final TransactionService transactionService = TransactionService();
   String type = "Income";
   String category = "Food";
 
@@ -60,7 +59,6 @@ class _AddTransactionScreenState
 
         child: ListView(
           children: [
-
             // Title
             TextField(
               controller: titleController,
@@ -100,13 +98,11 @@ class _AddTransactionScreenState
                 ),
               ),
               items: const [
-
                 DropdownMenuItem(
                   value: "Income",
                   child: Row(
                     children: [
-                      Icon(Icons.arrow_downward,
-                          color: Colors.green),
+                      Icon(Icons.arrow_downward, color: Colors.green),
                       SizedBox(width: 10),
                       Text("Income"),
                     ],
@@ -117,8 +113,7 @@ class _AddTransactionScreenState
                   value: "Expense",
                   child: Row(
                     children: [
-                      Icon(Icons.arrow_upward,
-                          color: Colors.red),
+                      Icon(Icons.arrow_upward, color: Colors.red),
                       SizedBox(width: 10),
                       Text("Expense"),
                     ],
@@ -144,10 +139,7 @@ class _AddTransactionScreenState
                 ),
               ),
               items: categories.map((item) {
-                return DropdownMenuItem(
-                  value: item,
-                  child: Text(item),
-                );
+                return DropdownMenuItem(value: item, child: Text(item));
               }).toList(),
               onChanged: (value) {
                 setState(() {
@@ -169,9 +161,7 @@ class _AddTransactionScreenState
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
-                child: Text(
-                  DateFormat('dd MMM yyyy').format(selectedDate),
-                ),
+                child: Text(DateFormat('dd MMM yyyy').format(selectedDate)),
               ),
             ),
 
@@ -181,8 +171,28 @@ class _AddTransactionScreenState
             SizedBox(
               height: 55,
               child: ElevatedButton(
-                onPressed: () {
-                  // Firestore code will be added next
+                onPressed: () async {
+                  if (titleController.text.isEmpty ||
+                      amountController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Please fill all fields")),
+                    );
+                    return;
+                  }
+
+                  await transactionService.addTransaction(
+                    title: titleController.text.trim(),
+                    amount: double.parse(amountController.text),
+                    type: type,
+                    category: category,
+                    date: selectedDate,
+                  );
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Transaction Saved")),
+                  );
+
+                  Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade600,
