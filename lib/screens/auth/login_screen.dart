@@ -65,19 +65,22 @@ Navigator.pushReplacement(
                 const SizedBox(height: 30),
 
                 Row(
-                  children: const [
-                    Icon(Icons.account_balance_wallet,
-                        size: 32, color: Colors.green),
-                    SizedBox(width: 10),
-                    Text(
-                      "Pocket Tracker",
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+  children: [
+    Image.asset(
+      "assets/images/pocket_tracker_logo.png",
+      width: 55,
+      height: 55,
+    ),
+    const SizedBox(width: 10),
+    const Text(
+      "Pocket Tracker",
+      style: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  ],
+),
 
                 const SizedBox(height: 30),
 

@@ -19,17 +19,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: const Color(0xFFF6F8FB),
 
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          "Pocket Tracker",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
+  backgroundColor: Colors.transparent,
+  elevation: 0,
+  title: Row(
+    children: [
+      Image.asset(
+        "assets/images/pocket_tracker_logo.png",
+        width: 40,
+        height: 40,
+      ),
+      const SizedBox(width: 10),
+      const Text(
+        "Pocket Tracker",
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
         ),
       ),
-
+    ],
+  ),
+),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection("transactions")
