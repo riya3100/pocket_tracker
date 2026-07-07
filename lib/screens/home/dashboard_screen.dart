@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_transaction_screen.dart';
 import '../../services/transaction_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -15,6 +16,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   double totalIncome = 0;
   double totalExpense = 0;
 final TransactionService transactionService = TransactionService();
+final User? user = FirebaseAuth.instance.currentUser;
+String getGreeting() {
+  final hour = DateTime.now().hour;
+
+  if (hour < 12) {
+    return "Good Morning ☀️";
+  } else if (hour < 17) {
+    return "Good Afternoon 🌤️";
+  } else {
+    return "Good Evening 🌙";
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,17 +88,20 @@ final TransactionService transactionService = TransactionService();
             padding: const EdgeInsets.all(20),
             children: [
 
-              const Text(
-                "Good Afternoon 👋",
-                style: TextStyle(color: Colors.grey, fontSize: 16),
+              Text(
+                "${getGreeting()}",
+                style: const TextStyle(color: Colors.grey, fontSize: 16),
               ),
 
               const SizedBox(height: 5),
 
-              const Text(
-                "Riya",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
+              Text(
+  user?.email?.split('@')[0] ?? "User",
+  style: const TextStyle(
+    fontSize: 30,
+    fontWeight: FontWeight.bold,
+  ),
+),
 
               const SizedBox(height: 25),
 
