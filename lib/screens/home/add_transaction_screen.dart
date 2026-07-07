@@ -3,11 +3,28 @@ import 'package:intl/intl.dart';
 import '../../services/transaction_service.dart';
 
 class AddTransactionScreen extends StatefulWidget {
-  const AddTransactionScreen({super.key});
+  final String? id;
+  final String? title;
+  final double? amount;
+  final String? type;
+  final String? category;
+  final DateTime? date;
+
+  const AddTransactionScreen({
+    super.key,
+    this.id,
+    this.title,
+    this.amount,
+    this.type,
+    this.category,
+    this.date,
+  });
 
   @override
-  State<AddTransactionScreen> createState() => _AddTransactionScreenState();
+  State<AddTransactionScreen> createState() =>
+      _AddTransactionScreenState();
 }
+  
 
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final titleController = TextEditingController();
@@ -17,6 +34,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   String category = "Food";
 
   DateTime selectedDate = DateTime.now();
+  @override
+void initState() {
+  super.initState();
+
+  if (widget.id != null) {
+    titleController.text = widget.title!;
+    amountController.text = widget.amount.toString();
+    type = widget.type!;
+    category = widget.category!;
+    selectedDate = widget.date!;
+  }
+}
 
   final List<String> categories = [
     "Food",
@@ -172,28 +201,51 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               height: 55,
               child: ElevatedButton(
                 onPressed: () async {
-                  if (titleController.text.isEmpty ||
-                      amountController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Please fill all fields")),
-                    );
-                    return;
-                  }
+  if (titleController.text.isEmpty ||
+      amountController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Please fill all fields"),
+      ),
+    );
+    return;
+  }
 
-                  await transactionService.addTransaction(
-                    title: titleController.text.trim(),
-                    amount: double.parse(amountController.text),
-                    type: type,
-                    category: category,
-                    date: selectedDate,
-                  );
+  if (widget.id == null) {
+    // ADD NEW TRANSACTION
+    await transactionService.addTransaction(
+      title: titleController.text.trim(),
+      amount: double.parse(amountController.text),
+      type: type,
+      category: category,
+      date: selectedDate,
+    );
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Transaction Saved")),
-                  );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Transaction Added"),
+      ),
+    );
+  } else {
+    // UPDATE EXISTING TRANSACTION
+    await transactionService.updateTransaction(
+      id: widget.id!,
+      title: titleController.text.trim(),
+      amount: double.parse(amountController.text),
+      type: type,
+      category: category,
+      date: selectedDate,
+    );
 
-                  Navigator.pop(context);
-                },
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Transaction Updated"),
+      ),
+    );
+  }
+
+  Navigator.pop(context);
+},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade600,
                   shape: RoundedRectangleBorder(

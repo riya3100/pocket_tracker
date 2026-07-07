@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_transaction_screen.dart';
+import '../../services/transaction_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
+  
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
   double totalIncome = 0;
   double totalExpense = 0;
-
+final TransactionService transactionService = TransactionService();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -196,15 +198,84 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       title: Text(transaction["title"]),
                       subtitle: Text(transaction["category"]),
 
-                      trailing: Text(
-                        "₹${transaction["amount"]}",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: transaction["type"] == "Income"
-                              ? Colors.green
-                              : Colors.red,
-                        ),
-                      ),
+                      trailing: Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+
+    Text(
+      "₹${transaction["amount"]}",
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        color: transaction["type"] == "Income"
+            ? Colors.green
+            : Colors.red,
+      ),
+    ),
+
+    IconButton(
+      icon: const Icon(
+        Icons.edit,
+        color: Colors.blue,
+      ),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AddTransactionScreen(
+              id: transaction.id,
+              title: transaction["title"],
+              amount: (transaction["amount"] as num).toDouble(),
+              type: transaction["type"],
+              category: transaction["category"],
+              date: (transaction["date"] as Timestamp).toDate(),
+            ),
+          ),
+        );
+      },
+    ),
+
+    IconButton(
+      icon: const Icon(
+        Icons.delete,
+        color: Colors.red,
+      ),
+      onPressed: () async {
+        bool? confirm = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Delete Transaction"),
+            content: const Text(
+              "Are you sure you want to delete this transaction?",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                ),
+                child: const Text("Delete"),
+              ),
+            ],
+          ),
+        );
+
+        if (confirm == true) {
+          await transactionService.deleteTransaction(transaction.id);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Transaction Deleted"),
+            ),
+          );
+        }
+      },
+    ),
+  ],
+),
                     ),
                   );
                 },
