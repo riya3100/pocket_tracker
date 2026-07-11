@@ -39,12 +39,20 @@ void initState() {
   super.initState();
 
   if (widget.id != null) {
-    titleController.text = widget.title!;
-    amountController.text = widget.amount.toString();
-    type = widget.type!;
-    category = widget.category!;
-    selectedDate = widget.date!;
-  }
+    amountController.text =
+    widget.amount?.toString() ?? "";
+   titleController.text =
+    widget.title ?? "";
+
+type =
+    widget.type ?? "Income";
+
+category =
+    widget.category ?? "Food";
+
+selectedDate =
+    widget.date ?? DateTime.now();
+}
 }
 
   final List<String> categories = [
@@ -77,8 +85,12 @@ void initState() {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FB),
 
-      appBar: AppBar(
-        title: const Text("Add Transaction"),
+     appBar: AppBar(
+  title: Text(
+    widget.id == null
+        ? "Add Transaction"
+        : "Edit Transaction",
+  ),
         backgroundColor: Colors.green.shade600,
         foregroundColor: Colors.white,
       ),
