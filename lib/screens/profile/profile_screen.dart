@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 import '../auth/login_screen.dart';
+import '../../providers/theme_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  Future<void> logout(BuildContext context) async {
+  Future logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(
-        builder: (_) => const LoginScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
       (route) => false,
     );
   }
@@ -22,211 +22,362 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
+    final theme = Theme.of(context);
+
     String name = user?.email?.split("@")[0] ?? "User";
+
     name = name[0].toUpperCase() + name.substring(1);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FB),
+      backgroundColor: theme.scaffoldBackgroundColor,
 
       appBar: AppBar(
         elevation: 0,
+
         backgroundColor: Colors.green,
+
         foregroundColor: Colors.white,
+
         title: const Text("Profile"),
+
         centerTitle: true,
       ),
 
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
+        padding: const EdgeInsets.all(20),
 
-              const SizedBox(height: 20),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
 
-              CircleAvatar(
-                radius: 55,
-                backgroundColor: Colors.green.shade100,
-                child: Icon(
-                  Icons.person,
-                  size: 60,
-                  color: Colors.green.shade700,
+            CircleAvatar(
+              radius: 55,
+
+              backgroundColor: Colors.green.withOpacity(0.2),
+
+              child: Icon(Icons.person, size: 60, color: Colors.green.shade600),
+            ),
+
+            const SizedBox(height: 18),
+
+            Text(
+              name,
+
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 6),
+
+            Text(user?.email ?? "", style: theme.textTheme.bodyMedium),
+
+            const SizedBox(height: 35),
+
+            profileTile(
+              context,
+              Icons.email_outlined,
+              "Email",
+              user?.email ?? "",
+            ),
+
+            profileTile(
+              context,
+              Icons.account_circle_outlined,
+              "Account",
+              "Personal",
+            ),
+
+            profileTile(
+              context,
+              Icons.verified_user_outlined,
+              "Status",
+              "Verified",
+            ),
+
+            profileTile(
+              context,
+              Icons.wallet_outlined,
+              "App",
+              "Pocket Tracker",
+            ),
+
+            profileTile(context, Icons.info_outline, "Version", "1.0.0"),
+
+            const SizedBox(height: 15),
+
+            Card(
+              elevation: 3,
+
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+
+              child: SwitchListTile(
+                secondary: CircleAvatar(
+                  backgroundColor: Colors.green.withOpacity(0.2),
+
+                  child: const Icon(Icons.dark_mode, color: Colors.green),
                 ),
-              ),
 
-              const SizedBox(height: 18),
+                title: const Text(
+                  "Dark Mode",
 
-              Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
+
+                subtitle: const Text("Enable dark theme"),
+
+                value: themeProvider.isDarkMode,
+
+                onChanged: (value) {
+                  themeProvider.toggleTheme(value);
+                },
               ),
+            ),
 
-              const SizedBox(height: 6),
+            const SizedBox(height: 40),
 
-              Text(
-                user?.email ?? "",
-                style: TextStyle(
-                  color: Colors.grey.shade700,
-                  fontSize: 16,
-                ),
-              ),
+           SizedBox(
+  width: double.infinity,
+  height: 65,
 
-              const SizedBox(height: 35),
+  child: OutlinedButton.icon(
 
-              profileTile(
-                Icons.email_outlined,
-                "Email",
-                user?.email ?? "",
-              ),
+    onPressed: () async {
 
-              const SizedBox(height: 15),
+      bool? confirmLogout =
+          await showDialog<bool>(
 
-              profileTile(
-                Icons.account_circle_outlined,
-                "Account",
-                "Personal",
-              ),
+        context: context,
 
-              const SizedBox(height: 15),
+        builder: (context) {
 
-              profileTile(
-                Icons.verified_user_outlined,
-                "Status",
-                "Verified",
-              ),
+          final theme = Theme.of(context);
 
-              const SizedBox(height: 15),
+          return AlertDialog(
 
-              profileTile(
-                Icons.wallet_outlined,
-                "App",
-                "Pocket Tracker",
-              ),
+            backgroundColor: theme.cardColor,
 
-              const SizedBox(height: 15),
+            shape: RoundedRectangleBorder(
+              borderRadius:
+                  BorderRadius.circular(20),
+            ),
 
-              profileTile(
-                Icons.info_outline,
-                "Version",
-                "1.0.0",
-              ),
+            title: const Row(
+              children: [
 
-              const SizedBox(height: 40),
+                CircleAvatar(
+                  backgroundColor:
+                      Colors.redAccent,
 
-              SizedBox(
-                width: double.infinity,
-                height: 58,
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    bool? confirmLogout = await showDialog<bool>(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          title: const Row(
-                            children: [
-                              Icon(
-                                Icons.logout,
-                                color: Colors.red,
-                              ),
-                              SizedBox(width: 10),
-                              Text("Logout"),
-                            ],
-                          ),
-                          content: const Text(
-                            "Are you sure you want to logout?",
-                          ),
-                          actions: [
-
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context, false);
-                              },
-                              child: const Text("Cancel"),
-                            ),
-
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                              ),
-                              onPressed: () {
-                                Navigator.pop(context, true);
-                              },
-                              child: const Text("Logout"),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-
-                    if (confirmLogout == true) {
-                      await logout(context);
-                    }
-                  },
-
-                  icon: const Icon(Icons.logout),
-
-                  label: const Text(
-                    "Logout",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
+                  child: Icon(
+                    Icons.logout,
+                    color: Colors.white,
                   ),
                 ),
+
+                SizedBox(width:12),
+
+                Text(
+                  "Logout",
+                ),
+              ],
+            ),
+
+
+            content: const Text(
+              "Are you sure you want to logout?",
+            ),
+
+
+            actions: [
+
+              TextButton(
+
+                onPressed: () {
+                  Navigator.pop(
+                    context,
+                    false,
+                  );
+                },
+
+                child:
+                    const Text("Cancel"),
+
               ),
 
-              const SizedBox(height: 20),
+
+              ElevatedButton(
+
+                style:
+                    ElevatedButton.styleFrom(
+
+                  backgroundColor:
+                      Colors.redAccent,
+
+                  foregroundColor:
+                      Colors.white,
+
+                  shape:
+                      RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(12),
+                  ),
+                ),
+
+
+                onPressed: () {
+
+                  Navigator.pop(
+                    context,
+                    true,
+                  );
+
+                },
+
+
+                child:
+                    const Text(
+                  "Logout",
+                ),
+              ),
             ],
-          ),
+          );
+        },
+      );
+
+
+      if(confirmLogout == true){
+
+        await logout(context);
+
+      }
+
+    },
+
+
+    icon: Container(
+
+      padding:
+          const EdgeInsets.all(8),
+
+      decoration:
+          BoxDecoration(
+
+        color:
+            Colors.red.withOpacity(0.15),
+
+        shape:
+            BoxShape.circle,
+
+      ),
+
+
+      child:
+          const Icon(
+        Icons.logout,
+
+        color:
+            Colors.red,
+
+      ),
+    ),
+
+
+
+    label:
+        const Text(
+
+      "Logout",
+
+      style:
+          TextStyle(
+
+        fontSize:18,
+
+        fontWeight:
+            FontWeight.bold,
+
+        color:
+            Colors.red,
+
+      ),
+
+    ),
+
+
+
+    style:
+        OutlinedButton.styleFrom(
+
+      side:
+          const BorderSide(
+
+        color:
+            Colors.red,
+
+        width:
+            1.5,
+
+      ),
+
+
+      shape:
+          RoundedRectangleBorder(
+
+        borderRadius:
+            BorderRadius.circular(18),
+
+      ),
+
+    ),
+
+  ),
+),
+
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );
   }
 
   Widget profileTile(
+    BuildContext context,
+
     IconData icon,
+
     String title,
+
     String subtitle,
   ) {
+    final theme = Theme.of(context);
+
     return Card(
       elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
+
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors.green.shade100,
-          child: Icon(
-            icon,
-            color: Colors.green,
-          ),
+          backgroundColor: Colors.green.withOpacity(0.2),
+
+          child: Icon(icon, color: Colors.green),
         ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        subtitle: Text(subtitle),
-        trailing: const Icon(
+
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+
+        subtitle: Text(subtitle, style: theme.textTheme.bodyMedium),
+
+        trailing: Icon(
           Icons.arrow_forward_ios,
+
           size: 16,
-          color: Colors.grey,
+
+          color: theme.iconTheme.color,
         ),
       ),
     );

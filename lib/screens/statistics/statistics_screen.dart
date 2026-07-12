@@ -72,12 +72,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         double balance = income - expense;
 
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
           appBar: AppBar(
             title: const Text("Statistics"),
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+           backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
 
             actions: [
               IconButton(
@@ -133,8 +133,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
             children: [
 
-              Card(
-                elevation: 3,
+             Card(
+  elevation: 5,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(16),
+    side: BorderSide(
+      color: Theme.of(context).dividerColor,
+      width: 1,
+    ),
+  ),
+
 
                 child: ListTile(
                   leading: const CircleAvatar(
@@ -149,7 +157,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   title: const Text("Current Balance"),
 
                   trailing: Text(
-                    "Rs${balance.toStringAsFixed(2)}",
+                    "₹${balance.toStringAsFixed(2)}",
 
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
@@ -185,7 +193,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             const SizedBox(height: 5),
 
                             Text(
-                              "Rs${income.toStringAsFixed(2)}",
+                              "₹${income.toStringAsFixed(2)}",
 
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -221,7 +229,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             const SizedBox(height: 5),
 
                             Text(
-                              "Rs${expense.toStringAsFixed(2)}",
+                              "₹${expense.toStringAsFixed(2)}",
 
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -236,8 +244,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ],
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 24),
 
+Divider(
+  thickness: 1.2,
+  color: Theme.of(context).dividerColor,
+),
+
+const SizedBox(height: 24),
               if (income > 0 || expense > 0)
                 SizedBox(
                   height: 250,
@@ -276,7 +290,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   ),
                 ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 24),
+
+Divider(
+  thickness: 1.2,
+  color: Theme.of(context).dividerColor,
+),
+
+const SizedBox(height: 24),
 
               const Text(
                 "Expenses by Category",
@@ -321,18 +342,29 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       value: expense == 0
                           ? 0
                           : entry.value / expense,
-                      backgroundColor: Colors.grey.shade300,
+                     backgroundColor: Theme.of(context).dividerColor,
                       color: AppColors.primary,
                     ),
 
-                    trailing: Text(
-                      "Rs${entry.value.toStringAsFixed(2)}",
-
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    trailing: Column(
+  mainAxisAlignment: MainAxisAlignment.center,
+  crossAxisAlignment: CrossAxisAlignment.end,
+  children: [
+    Text(
+      "₹${entry.value.toStringAsFixed(2)}",
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    Text(
+      "${((entry.value / expense) * 100).toStringAsFixed(1)}%",
+      style: const TextStyle(
+        fontSize: 12,
+        color: Colors.grey,
+      ),
+    ),
+  ],
+),
                   ),
                 );
               }).toList(),

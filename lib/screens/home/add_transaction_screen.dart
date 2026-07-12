@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../services/transaction_service.dart';
+import '../../utils/app_colors.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final String? id;
@@ -34,6 +35,30 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   String category = "Food";
 
   DateTime selectedDate = DateTime.now();
+  InputDecoration inputDecoration({
+  required String label,
+  required IconData icon,
+}) {
+  return InputDecoration(
+    labelText: label,
+    prefixIcon: Icon(icon),
+    filled: true,
+    fillColor: Theme.of(context).cardColor,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(15),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(15),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(15),
+      borderSide: BorderSide(
+        color: AppColors.primary,
+        width: 2,
+      ),
+    ),
+  );
+}
   @override
 void initState() {
   super.initState();
@@ -83,7 +108,7 @@ selectedDate =
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
      appBar: AppBar(
   title: Text(
@@ -91,7 +116,7 @@ selectedDate =
         ? "Add Transaction"
         : "Edit Transaction",
   ),
-        backgroundColor: Colors.green.shade600,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
 
@@ -103,13 +128,10 @@ selectedDate =
             // Title
             TextField(
               controller: titleController,
-              decoration: InputDecoration(
-                labelText: "Title",
-                prefixIcon: const Icon(Icons.title),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
+              decoration: inputDecoration(
+  label: "Title",
+  icon: Icons.title,
+),
             ),
 
             const SizedBox(height: 20),
@@ -118,13 +140,10 @@ selectedDate =
             TextField(
               controller: amountController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: "Amount",
-                prefixIcon: const Icon(Icons.currency_rupee),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
+              decoration: inputDecoration(
+  label: "Amount",
+  icon: Icons.currency_rupee,
+),
             ),
 
             const SizedBox(height: 20),
@@ -132,12 +151,10 @@ selectedDate =
             // Income / Expense
             DropdownButtonFormField<String>(
               value: type,
-              decoration: InputDecoration(
-                labelText: "Transaction Type",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
+             decoration: inputDecoration(
+  label: "Transaction Type",
+  icon: Icons.account_balance,
+),
               items: const [
                 DropdownMenuItem(
                   value: "Income",
@@ -173,12 +190,10 @@ selectedDate =
             // Category
             DropdownButtonFormField<String>(
               value: category,
-              decoration: InputDecoration(
-                labelText: "Category",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
+              decoration: inputDecoration(
+  label: "Category",
+  icon: Icons.category,
+),
               items: categories.map((item) {
                 return DropdownMenuItem(value: item, child: Text(item));
               }).toList(),
@@ -192,88 +207,86 @@ selectedDate =
             const SizedBox(height: 20),
 
             // Date Picker
-            InkWell(
-              onTap: pickDate,
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  labelText: "Date",
-                  prefixIcon: const Icon(Icons.calendar_today),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                child: Text(DateFormat('dd MMM yyyy').format(selectedDate)),
-              ),
-            ),
+           // Date Picker
+InkWell(
+  onTap: pickDate,
+  child: InputDecorator(
+    decoration: inputDecoration(
+      label: "Date",
+      icon: Icons.calendar_today,
+    ),
+    child: Text(
+      DateFormat('dd MMM yyyy').format(selectedDate),
+    ),
+  ),
+),
 
-            const SizedBox(height: 35),
+const SizedBox(height: 35),
 
-            // Save Button
-            SizedBox(
-              height: 55,
-              child: ElevatedButton(
-                onPressed: () async {
-  if (titleController.text.isEmpty ||
-      amountController.text.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Please fill all fields"),
+// Save Button
+SizedBox(
+  height: 55,
+  child: ElevatedButton(
+    onPressed: () async {
+      if (titleController.text.isEmpty ||
+          amountController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Please fill all fields"),
+          ),
+        );
+        return;
+      }
+
+      if (widget.id == null) {
+        await transactionService.addTransaction(
+          title: titleController.text.trim(),
+          amount: double.parse(amountController.text),
+          type: type,
+          category: category,
+          date: selectedDate,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Transaction Added"),
+          ),
+        );
+      } else {
+        await transactionService.updateTransaction(
+          id: widget.id!,
+          title: titleController.text.trim(),
+          amount: double.parse(amountController.text),
+          type: type,
+          category: category,
+          date: selectedDate,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Transaction Updated"),
+          ),
+        );
+      }
+
+      Navigator.pop(context);
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: AppColors.primary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
       ),
-    );
-    return;
-  }
-
-  if (widget.id == null) {
-    // ADD NEW TRANSACTION
-    await transactionService.addTransaction(
-      title: titleController.text.trim(),
-      amount: double.parse(amountController.text),
-      type: type,
-      category: category,
-      date: selectedDate,
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Transaction Added"),
+    ),
+    child: const Text(
+      "Save Transaction",
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
       ),
-    );
-  } else {
-    // UPDATE EXISTING TRANSACTION
-    await transactionService.updateTransaction(
-      id: widget.id!,
-      title: titleController.text.trim(),
-      amount: double.parse(amountController.text),
-      type: type,
-      category: category,
-      date: selectedDate,
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Transaction Updated"),
-      ),
-    );
-  }
-
-  Navigator.pop(context);
-},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade600,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                child: const Text(
-                  "Save Transaction",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
+    ),
+  ),
+),
           ],
         ),
       ),
