@@ -1,16 +1,47 @@
-# pocket_tracker
+# 💰 Pocket Tracker
 
-A new Flutter project.
+Pocket Tracker is a Flutter-based personal expense management application that helps users record, categorize, and analyze their daily financial transactions.
 
-## Getting Started
+## ✨ Features
 
-This project is a starting point for a Flutter application.
+* Firebase Authentication
+* Add Income & Expenses
+* Edit & Delete Transactions
+* Monthly Budget Management
+* Expense Statistics
+* Category-wise Analysis
+* CSV Export
+* Clean Dashboard UI
+* Profile Screen
+* Dark mode
 
-A few resources to get you started if this is your first Flutter project:
+## 🛠️ Technologies Used
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+* Flutter
+* Dart
+* Firebase Authentication
+* Cloud Firestore
+* FL Chart
+* Provider
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 📱 Screens
+
+* Splash Screen
+* Login & Signup
+* Dashboard
+* Add Transaction
+* Statistics
+* Budget
+* Profile
+
+## Future Improvements
+
+* PDF Reports
+* Notifications
+* Recurring Transactions
+* Multiple Currency Support
+
+## Developed By
+
+Riya CS
+
